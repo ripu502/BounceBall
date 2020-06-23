@@ -39,6 +39,7 @@ module.exports.makePredict = (req, res, next) => {
                     response: 'bad value for the e'
                 });
             break;
+	return;
         }
         let v = Math.sqrt(2 * g * height);
         t = t + parseFloat((v / g).toFixed(1));
