@@ -1,11 +1,43 @@
 const g = 10;
+const fs = require("fs");
+const dataPath = './data/data.json'
 
+const readFile = (
+    callback,
+    returnJson = false,
+    filePath = dataPath,
+    encoding = "utf8"
+) => {
+    fs.readFile(filePath, encoding, (err, data) => {
+        if (err) {
+            throw err;
+        }
+        callback(returnJson ? JSON.parse(data) : data);
+    });
+};
+
+const writeFile = (
+    fileData,
+    callback,
+    filePath = dataPath,
+    encoding = "utf8"
+) => {
+    fs.writeFile(filePath, fileData, encoding, (err) => {
+        if (err) {
+            throw err;
+        }
+
+        callback();
+    });
+};
 
 module.exports.getData = (req, res, next) => {
-    res.status(200).json(
-        {
-            response: 'data from the database'
-        });
+    fs.readFile(dataPath, "utf8", (err, data) => {
+        if (err) {
+            console.log(err);
+        }
+        res.json(JSON.parse(data));
+    });
 }
 
 
@@ -15,7 +47,7 @@ module.exports.makePredict = (req, res, next) => {
     let t = 0;
     let bounce = 0;
     while (height > 0) {
-        if (e >= 1) {
+        if (e >= 0.8) {
             res.status(200).json(
                 {
                     response: 'bad value for the e'
@@ -33,13 +65,19 @@ module.exports.makePredict = (req, res, next) => {
         temp = { 'height': height, 'time': t };
         arr.push(temp);
     }
+    let data = {
+        response: 'done calculation',
+        bounce: bounce,
+        data: arr
+    }
+    writeFile(JSON.stringify(data, null, 2), () => {
+        res.status(200).json(
+            {
+                data: 'posted'
+            }
+        )
+    });
 
-    res.status(200).json(
-        {
-            response: 'done calculation',
-            bounce: bounce,
-            data: arr
-        })
 }
 
 
